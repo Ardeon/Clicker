@@ -221,6 +221,7 @@ public class Main extends JavaPlugin {
     }
 
 	public void updateTop() {
+		saveAll();
 		topchik = bd.getTopPlayerStats();
     }
     
