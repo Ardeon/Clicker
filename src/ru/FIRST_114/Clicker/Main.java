@@ -175,6 +175,8 @@ public class Main extends JavaPlugin {
     	maxhealth.setBaseValue(random);
     	clicking.setHealth(random);
     	mobHP = 1;
+    	w.getNearbyEntities(currentLocation, 10, 10, 10, testplayer).forEach(
+    			e -> ((Player)e).setVelocity(e.getLocation().toVector().subtract(currentLocation.toVector()).normalize().multiply(0.5)));
     	switch (type) {
     	case PIG:
     		clicking.setCustomName("Свиния Пучкова");
@@ -191,7 +193,7 @@ public class Main extends JavaPlugin {
     }
     
     public void randomTeleport() {
-    	int random = (int) (Math.random()*3);
+    	int random = (int) (Math.random()*4);
     	if (locations[random]!=null)
     		currentLocation = locations[random];
 	    	switch (type) {

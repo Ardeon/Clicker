@@ -109,7 +109,7 @@ public abstract class Database {
         PreparedStatement ps = null;
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM stats ORDER BY score LIMIT 20;");
+            ps = conn.prepareStatement("SELECT * FROM stats ORDER BY score DESC LIMIT 20;");
             ResultSet rs = ps.executeQuery();
             ArrayList<Kostili> top = new ArrayList<Kostili>();
             
