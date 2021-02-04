@@ -14,7 +14,7 @@ public class ClickerCommand implements CommandExecutor {
 		if ((sender instanceof Player)) 
 		{
 			Player p = (Player) sender;
-			PlayerStat stat = Main.players.get(p.getUniqueId()).stat;
+			PlayerStat stat = Main.plugin.players.get(p).stat;
 			int power = stat.power;
 			//int score = stat.score;
 			int coins = stat.coins;
@@ -70,7 +70,7 @@ public class ClickerCommand implements CommandExecutor {
 					if (stat.score>1000000)
 					{
 						
-							Main.eco.depositPlayer(p, stat.score/10);
+							Main.plugin.eco.depositPlayer(p, stat.score/10);
 							stat.autoclickers++;
 							stat.score=0;
 							stat.coins=0;

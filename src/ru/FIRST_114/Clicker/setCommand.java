@@ -19,12 +19,12 @@ public class setCommand implements CommandExecutor {
 			Block b = r.getHitBlock().getRelative(r.getHitBlockFace().getOppositeFace());
 			if (b!=null)
 			{
-				Main.config.set("block.world", b.getWorld().getName());
-				Main.config.set("block.x", b.getX());
-				Main.config.set("block.y", b.getY());
-				Main.config.set("block.z", b.getZ());
-				Main.clickBlock = b;
-				Main.saveYamls();
+				Main.plugin.config.set("block.world", b.getWorld().getName());
+				Main.plugin.config.set("block.x", b.getX());
+				Main.plugin.config.set("block.y", b.getY());
+				Main.plugin.config.set("block.z", b.getZ());
+				Main.plugin.clickBlock = b;
+				Main.plugin.saveYamls();
 			}
 			
 			return true;

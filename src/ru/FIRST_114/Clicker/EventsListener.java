@@ -12,29 +12,25 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import com.google.gson.Gson;
-
 import ru.FIRST_114.Clicker.PlayerData.CPlayer;
 import ru.FIRST_114.Clicker.PlayerData.PlayerStat;
 
 public class EventsListener implements Listener {
-	Gson gson = new Gson();
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) 
 	{
-		if (!Main.players.containsKey(e.getPlayer().getUniqueId())) {
-			PlayerStat stat = Main.read(e.getPlayer().getUniqueId());
-			if (stat==null)
-				stat = new PlayerStat();
-			Main.players.put(e.getPlayer().getUniqueId(), new CPlayer(stat));
+		Player player = e.getPlayer();
+		if (!Main.plugin.players.containsKey(player)) {
+			PlayerStat stat = Main.plugin.bd.getOrCreatePlayerStats(player);
+			Main.plugin.players.put(player, new CPlayer(stat));
 		}
 	}
 	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) 
 	{
-		if (e.getEntity()==Main.clicking.mob) {
+		if (e.getEntity()==Main.plugin.clicking) {
 			/*
 			if (Main.currentSkill!=null)
 				switch (Main.currentSkill) {
@@ -56,26 +52,26 @@ public class EventsListener implements Listener {
 		    		break;
 				}
 			else {*/
-				for (Entity ent : Main.clickBlock.getWorld().getNearbyEntities(Main.clickBlock.getLocation(), 10, 10, 10, Main.testplayer)) {
-	    			Player p = (Player) ent;
-	    			//p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("Вы подобрали монету").create());
-	    			CPlayer cp = Main.players.get(p.getUniqueId());
-	    			PlayerStat stat = cp.stat;
-	    			double pr = stat.power*stat.power*10;
-	    			int addcoins = (int) ((1 + stat.score/1000)*Math.pow(1.5,stat.autoclickers));
-	    			stat.coins+=addcoins;
-	    			
-	    			double progress = (double)stat.coins/pr;
-	    			String s="";
-	    			if(progress>=1) {
-	    				progress = 1;
-	    				s="Вы можите купиль лучшение кликов";
-	    			}
-	    			p.sendTitle("Вы подобрали монетки: +" + addcoins, s, 6, 30, 6);
-	    			cp.coinsbar.setTitle("Монеты: "+stat.coins);
-	    			cp.coinsbar.setProgress(progress);
-	    		}
-				e.getDrops().clear();
+			for (Entity ent : Main.plugin.clickBlock.getWorld().getNearbyEntities(Main.plugin.clickBlock.getLocation(), 10, 10, 10, Main.plugin.testplayer)) {
+    			Player p = (Player) ent;
+    			//p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder("Вы подобрали монету").create());
+    			CPlayer cp = Main.plugin.players.get(p);
+    			PlayerStat stat = cp.stat;
+    			double pr = stat.power*stat.power*10;
+    			int addcoins = (int) ((1 + stat.score/1000)*Math.pow(1.5,stat.autoclickers));
+    			stat.coins+=addcoins;
+    			
+    			double progress = (double)stat.coins/pr;
+    			String s="";
+    			if(progress>=1) {
+    				progress = 1;
+    				s="Вы можите купиль лучшение кликов";
+    			}
+    			p.sendTitle("Вы подобрали монетки: +" + addcoins, s, 6, 30, 6);
+    			cp.coinsbar.setTitle("Монеты: "+stat.coins);
+    			cp.coinsbar.setProgress(progress);
+    		}
+			e.getDrops().clear();
 			//}
 		}
 			
@@ -85,20 +81,20 @@ public class EventsListener implements Listener {
 	public void onPlayerHitMob(EntityDamageByEntityEvent e) 
 	{
 		Entity ent = e.getEntity();
-		if (ent==Main.clicking.mob) {
+		if (ent==Main.plugin.clicking) {
 			Entity entdamager = e.getDamager();
 			if (entdamager instanceof Player) {
-				AttributeInstance maxhealth = Main.clicking.mob.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+				AttributeInstance maxhealth = Main.plugin.clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
 				Player p = (Player) entdamager;
-				CPlayer cp = Main.players.get(p.getUniqueId());
+				CPlayer cp = Main.plugin.players.get(p);
 				PlayerStat stat = cp.stat;
 				BossBar bar = cp.bar;
 				int power = stat.power;
 				int clicks = cp.clickpertick;
 				
-				if (!Main.clicking.mob.isDead()&&clicks<1)
+				if (!Main.plugin.clicking.isDead()&&clicks<1)
 				{
-					Main.w.spawnParticle(Particle.CRIT_MAGIC, Main.clicking.mob.getEyeLocation(), 3);
+					Main.plugin.w.spawnParticle(Particle.CRIT_MAGIC, Main.plugin.clicking.getEyeLocation(), 3);
 					/*
 					if (Main.currentSkill!=null)
 					switch (Main.currentSkill) {
@@ -142,15 +138,15 @@ public class EventsListener implements Listener {
 			    		break;
 			    	}*/
 					//else {
-						Main.clicking.mob.damage(((double)power)/10);
-						Main.clicking.mob.setNoDamageTicks(0);
+						Main.plugin.clicking.damage(((double)power)/10);
+						Main.plugin.clicking.setNoDamageTicks(0);
 						if (stat.score<5000000)
 							stat.score = stat.score + power;
 					//}
-					Main.mobHP = Main.clicking.mob.getHealth()/maxhealth.getValue();
+					Main.plugin.mobHP = Main.plugin.clicking.getHealth()/maxhealth.getValue();
 					bar.setTitle("Счёт: "+stat.score);
 					cp.clickpertick++;
-					bar.setProgress(Main.mobHP);
+					bar.setProgress(Main.plugin.mobHP);
 				}
 			}
 			e.setCancelled(true);

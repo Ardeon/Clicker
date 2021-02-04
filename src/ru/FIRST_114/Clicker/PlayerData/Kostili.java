@@ -4,10 +4,10 @@ import java.util.UUID;
 
 public class Kostili {
 	public UUID id;
-	public CPlayer player;
+	public PlayerStat stat;
 	
-	public Kostili(UUID id, CPlayer player){
+	public Kostili(UUID id, PlayerStat stat){
 		this.id = id;
-		this.player = player;
+		this.stat = stat;
 	}
 }

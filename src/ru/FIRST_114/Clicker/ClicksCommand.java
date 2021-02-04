@@ -14,7 +14,7 @@ public class ClicksCommand implements CommandExecutor {
 		if ((sender instanceof Player)) 
 		{
 			Player p = (Player) sender;
-			PlayerStat stat = Main.players.get(p.getUniqueId()).stat;
+			PlayerStat stat = Main.plugin.players.get(p).stat;
 			if (args.length==1)
 			{
 				int removed;

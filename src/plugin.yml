@@ -14,6 +14,7 @@ commands:
     clicker:
         description: кликер
         usage: /clickerset
+        permission: clicker.set
 permissions: #права
     clicker.set:
         description: Your description

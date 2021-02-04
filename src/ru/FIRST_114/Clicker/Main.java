@@ -1,17 +1,10 @@
 package ru.FIRST_114.Clicker;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,42 +13,39 @@ import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.google.gson.Gson;
-
 import net.milkbowl.vault.economy.Economy;
 import ru.FIRST_114.Clicker.PlayerData.CPlayer;
 import ru.FIRST_114.Clicker.PlayerData.Kostili;
-import ru.FIRST_114.Clicker.PlayerData.PlayerStat;
+import ru.FIRST_114.Clicker.bd.SQLite;
 
 public class Main extends JavaPlugin {
 	public static Main plugin;
-	public static HashMap<UUID,CPlayer> players = new HashMap<UUID,CPlayer>();
-	static Gson gson = new Gson();
-    public static Logger log = Logger.getLogger("Clicker");
-    public static File configFile;           
-    public static YamlConfiguration config;
-    public static Block clickBlock;
-    public static Location loc;
-    public static ArrayList<Kostili> topchik = null;
-    //public static UUID[] top = {null,null,null,null,null};
-    public static ClickMob clicking;
-    public static MobList plains = new MobList();
-    public static double mobHP=1;
-    public static Economy eco;
-    public static World w;
-    static Predicate<Entity> testplayer = p -> (p instanceof Player);  
-    static Predicate<Entity> testmob = p -> (p instanceof Mob);
+	public HashMap<Player,CPlayer> players = new HashMap<Player,CPlayer>();
+    public File configFile;           
+    public YamlConfiguration config;
+    public Block clickBlock;
+    public Location loc;
+    public ArrayList<Kostili> topchik = null;
+    public Mob clicking;
+    public MobList plains = new MobList();
+    public double mobHP=1;
+    public Economy eco;
+    public World w;
+    Predicate<Entity> testplayer = p -> (p instanceof Player);  
+    Predicate<Entity> testmob = p -> (p instanceof Mob);
+    SQLite bd;
 	BukkitRunnable savetimer = new BukkitRunnable() {
 		@Override
 		public void run() {
 			saveAll();
-			log.info("clicker autosave");
+			getLogger().info("clicker autosave");
 		}
 	};
 	BukkitRunnable anticheat = new BukkitRunnable() {
@@ -64,19 +54,18 @@ public class Main extends JavaPlugin {
 			players.forEach((id, cplayer) -> cplayer.clickpertick=0);
 		}
 	};
-	//savetimer.runTaskTimerAsynchronously(this, 2000L, 18000L);
 	BukkitRunnable bossBarTimer = new BukkitRunnable() {
 		@Override
 		public void run() {
 			if (clickBlock!=null) {
 				World w = clickBlock.getWorld();
-				if (w.getChunkAt(clickBlock).isLoaded()&&(clicking==null||clicking.mob==null||clicking.mob.isDead())) {
-					NewMob(clicking);
+				if (w.getChunkAt(clickBlock).isLoaded()&&(clicking==null||clicking.isDead())) {
+					NewMob();
 				}
 				eraseVisible();
 				for (Entity ent : clickBlock.getWorld().getNearbyEntities(clickBlock.getLocation(), 10, 10, 10, testplayer)) {
 					Player p = (Player) ent;
-					CPlayer cp = players.get(p.getUniqueId());
+					CPlayer cp = players.get(p);
 					BossBar bar = cp.bar;
 					cp.coinsbar.setVisible(true);
 					cp.coinsbar.addPlayer(p);
@@ -104,7 +93,7 @@ public class Main extends JavaPlugin {
     public void onDisable() {
 		saveAll();
 		if (clicking!=null)
-			clicking.mob.remove();
+			clicking.remove();
     }
 
     @Override
@@ -126,7 +115,7 @@ public class Main extends JavaPlugin {
         }
         config = YamlConfiguration.loadConfiguration(configFile);
         loadYamls();
-        loadScore();
+        bd = new SQLite(this);
         String worldName = config.getString("block.world", null);
         int x = config.getInt("block.x", 0);
         int y = config.getInt("block.y", 0);
@@ -136,7 +125,7 @@ public class Main extends JavaPlugin {
         	w = Bukkit.getWorld(worldName);
         	if (w!=null) {
 	        	clickBlock = w.getBlockAt(x, y, z);
-	        	loc = Main.clickBlock.getLocation().clone().add(0.5, -1, 0.5);
+	        	loc = clickBlock.getLocation().clone().add(0.5, -1, 0.5);
 	        }
         }
         getServer().getPluginCommand("clickerset").setExecutor(new setCommand());
@@ -149,7 +138,7 @@ public class Main extends JavaPlugin {
     	topUpdate.runTaskTimer(this, 60L, 72000L);
     }
     
-    public static void loadYamls() {
+    public void loadYamls() {
         try {
             config.load(configFile); //loads the contents of the File to its FileConfiguration
         } catch (Exception e) {
@@ -157,7 +146,7 @@ public class Main extends JavaPlugin {
         }
     }
     
-    public static void saveYamls() {
+    public void saveYamls() {
         try {
             config.save(configFile); //saves the FileConfiguration to its File
         } catch (IOException e) {
@@ -165,7 +154,7 @@ public class Main extends JavaPlugin {
         }
     }
     
-    public static void eraseVisible() {
+    public void eraseVisible() {
     	players.forEach((id, cplayer) -> { 
 			cplayer.bar.setVisible(false);
 			cplayer.coinsbar.setVisible(false);
@@ -173,85 +162,25 @@ public class Main extends JavaPlugin {
 		);
     }
     
-    public static void loadScore() {
-    	File f = new File(Main.plugin.getDataFolder()+File.separator+"Players");
-    	for (File file : f.listFiles()) {
-    		String uuid = file.getName().split("\\.")[0];
-    		PlayerStat stat = getFromFile(file);
-    		Main.players.put(UUID.fromString(uuid), new CPlayer(stat));
-    	}
-    } 
-    
-    public static void NewMob(ClickMob previos) {
-    	clicking = new ClickMob(previos);
-    	w.getNearbyEntities(loc, 10, 10, 10, testplayer).forEach(e -> ((Player)e).setVelocity(e.getLocation().toVector().subtract(loc.toVector()).normalize()));
+    public void NewMob() {
+    	EntityType type = plains.getRandom();
+    	clicking = (Mob) w.spawnEntity(loc, type);
     	mobHP = 1;
-    	log.info("Create mob");
+    	plugin.getLogger().info("Create mob");
     } 
     
-    public static void saveAll() {
+    public void saveAll() {
     	players.forEach((id, cplayer) -> save(id, cplayer));
     }
     
-    public static void save(UUID id, CPlayer cplayer) {
-    	File f = new File(Main.plugin.getDataFolder()+File.separator+"Players", id.toString()+".json");
-		f.getParentFile().mkdirs();
-		try(FileWriter writer = new FileWriter(f, false)) {
-			String json = gson.toJson(cplayer.stat);
-			writer.write(json);
-			writer.close();
-        }
-        catch(IOException ex) {
-            log.info(ex.toString());
-        } 
+    public void save(Player player, CPlayer cplayer) {
+    	bd.saveStats(player.getUniqueId().toString().toLowerCase(), cplayer.stat);
     }
     
 
-	public static void updateTop() {
-		topchik = new ArrayList<Kostili>();
-    	players.entrySet().stream().sorted(Map.Entry.comparingByValue(new ScoreComparator())).forEach(Main::addd);
-    	if (topchik.size()>0) {
-    		for (int i =0;i<topchik.size();i++) {
-    			log.info(""+topchik.get(i).player.stat.score);
-    		}
-    	}
+	public void updateTop() {
+		topchik = bd.getTopPlayerStats();
     }
     
-	public static void addd(Map.Entry<UUID, CPlayer> in) {
-		topchik.add(new Kostili(in.getKey(), in.getValue()) );
-    }
-	
-    public static PlayerStat read(UUID id) {
-    	File f = new File(Main.plugin.getDataFolder()+File.separator+"Players", id.toString()+".json");
-		return getFromFile(f);
-    }
-    
-    public static PlayerStat getFromFile(File f) {
-    	f.getParentFile().mkdirs();
-    	PlayerStat stat;
-    	if (f.exists()) {
-			FileReader fr;
-			String json = "";
-			try {
-				fr = new FileReader(f);
-				Scanner scan = new Scanner(fr);
-		        while (scan.hasNextLine()) {
-		            json = json.concat(scan.nextLine());
-		            //log.info(json);
-		        }
-		        scan.close();
-		        fr.close();
-			} catch (FileNotFoundException e1) {
-				log.info("open error");
-			} catch (IOException e1) {
-				log.info("error");
-			}
-			stat = gson.fromJson(json, PlayerStat.class);
-		}
-		else {
-			stat = new PlayerStat();
-		}
-    	return stat;
-    }
     
 }
