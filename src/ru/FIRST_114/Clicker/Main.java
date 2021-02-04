@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -34,10 +33,11 @@ public class Main extends JavaPlugin {
 	public HashMap<Player,CPlayer> players = new HashMap<Player,CPlayer>();
     public File configFile;           
     public YamlConfiguration config;
-    public Block clickBlock;
-    public Location loc;
+    public Location currentLocation;
+    public Location[] locations = new Location[4];
     public ArrayList<Kostili> topchik = null;
     public Mob clicking;
+    EntityType type;
     public MobList plains = new MobList();
     public double mobHP=1;
     public Economy eco;
@@ -61,20 +61,16 @@ public class Main extends JavaPlugin {
 	BukkitRunnable bossBarTimer = new BukkitRunnable() {
 		@Override
 		public void run() {
-			if (clickBlock!=null) {
-				World w = clickBlock.getWorld();
-				if (w.getChunkAt(clickBlock).isLoaded()&&(clicking==null||clicking.isDead())) {
+			if (currentLocation!=null) {
+				World w = currentLocation.getWorld();
+				if (w.getChunkAt(currentLocation).isLoaded()&&(clicking==null||clicking.isDead())) {
 					NewMob();
 				}
 				eraseVisible();
-				for (Entity ent : clickBlock.getWorld().getNearbyEntities(clickBlock.getLocation(), 10, 10, 10, testplayer)) {
+				for (Entity ent : currentLocation.getWorld().getNearbyEntities(currentLocation, 10, 10, 10, testplayer)) {
 					Player p = (Player) ent;
 					CPlayer cp = players.get(p);
 					BossBar bar = cp.bar;
-					double pr = cp.stat.power*cp.stat.power*10;
-					double progress = (double)cp.stat.coins/pr;
-	    			if(progress>=1) 
-	    				progress = 1;
 					bar.setTitle("Счёт: "+cp.stat.score);
 					bar.setVisible(true);
 					bar.addPlayer(p);
@@ -104,7 +100,20 @@ public class Main extends JavaPlugin {
             eco = reg.getProvider();
         }
     	plugin = this;
-        configFile = new File(getDataFolder(), "config.yml"); 
+        load();
+        getServer().getPluginCommand("clickerset").setExecutor(new setCommand());
+        getServer().getPluginCommand("clicks").setExecutor(new ClicksCommand());
+        getServer().getPluginCommand("clicker").setExecutor(new ClickerCommand());
+        getServer().getPluginCommand("clickerreload").setExecutor(new ClickerReloadCommand());
+    	getServer().getPluginManager().registerEvents(new EventsListener(this), this);
+    	savetimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
+    	bossBarTimer.runTaskTimer(this, 20L, 40L);
+    	anticheat.runTaskTimer(this, 20L, 2L);
+    	topUpdate.runTaskTimer(this, 60L, 7200L);
+    }
+    
+    public void load() {
+    	configFile = new File(getDataFolder(), "config.yml"); 
         configFile.getParentFile().mkdirs();
         if (!configFile.exists()) {
         	try {
@@ -118,25 +127,17 @@ public class Main extends JavaPlugin {
         loadYamls();
         bd = new SQLite(this);
         String worldName = config.getString("block.world", null);
-        int x = config.getInt("block.x", 0);
-        int y = config.getInt("block.y", 0);
-        int z = config.getInt("block.z", 0);
         
         if (worldName!=null) {
         	w = Bukkit.getWorld(worldName);
         	if (w!=null) {
-	        	clickBlock = w.getBlockAt(x, y, z);
-	        	loc = clickBlock.getLocation().clone().add(0.5, -1, 0.5);
+	        	for (int i = 1; i <= 4; i++) {
+	        		locations[i-1] = config.getLocation("block."+i, null);
+	        	}
+	        	if (locations[0]!=null)
+	        		currentLocation = locations[0];
 	        }
         }
-        getServer().getPluginCommand("clickerset").setExecutor(new setCommand());
-        getServer().getPluginCommand("clicks").setExecutor(new ClicksCommand());
-        getServer().getPluginCommand("clicker").setExecutor(new ClickerCommand());
-    	getServer().getPluginManager().registerEvents(new EventsListener(), this);
-    	savetimer.runTaskTimerAsynchronously(this, 2000L, 1800L);
-    	bossBarTimer.runTaskTimer(this, 20L, 40L);
-    	anticheat.runTaskTimer(this, 20L, 2L);
-    	topUpdate.runTaskTimer(this, 60L, 72000L);
     }
     
     public void loadYamls() {
@@ -163,18 +164,46 @@ public class Main extends JavaPlugin {
     }
     
     public void NewMob() {
-    	EntityType type = plains.getRandom();
-    	clicking = (Mob) w.spawnEntity(loc, type);
+    	type = plains.getRandom();
+    	clicking = (Mob) w.spawnEntity(currentLocation, type);
     	clicking.setAI(false);
     	clicking.setCanPickupItems(false);
 		PotionEffect ef = new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, false, false, false);
     	ef.apply(clicking);
     	AttributeInstance maxhealth = clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-    	maxhealth.setBaseValue(1000);
-    	clicking.setHealth(1000);
+    	int random = (int) (5 + Math.random()*6);
+    	maxhealth.setBaseValue(random);
+    	clicking.setHealth(random);
     	mobHP = 1;
-    	plugin.getLogger().info("Create mob");
-    } 
+    	switch (type) {
+    	case PIG:
+    		clicking.setCustomName("Свиния Пучкова");
+    		w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
+    		break;
+    	case BEE:
+    	case VEX:
+    	case PARROT:
+    		clicking.teleport(currentLocation.clone().add(0, 1, 0));
+		default:
+			break;
+    	}
+    		
+    }
+    
+    public void randomTeleport() {
+    	int random = (int) (Math.random()*3);
+    	if (locations[random]!=null)
+    		currentLocation = locations[random];
+	    	switch (type) {
+	    	case BEE:
+	    	case VEX:
+	    	case PARROT:
+	    		clicking.teleport(currentLocation.clone().add(0, 1, 0));
+	    	default:
+				break;
+	    	}
+    	clicking.teleport(currentLocation);
+    }
     
     public void saveAll() {
     	players.forEach((id, cplayer) -> save(id));

@@ -17,26 +17,31 @@ import ru.FIRST_114.Clicker.PlayerData.CPlayer;
 import ru.FIRST_114.Clicker.PlayerData.PlayerStat;
 
 public class EventsListener implements Listener {
+	Main plugin;
+	
+	EventsListener(Main plugin){
+		this.plugin = plugin;
+	}
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) 
 	{
 		Player player = e.getPlayer();
-		PlayerStat stat = Main.plugin.bd.getOrCreatePlayerStats(player);
-		Main.plugin.players.put(player, new CPlayer(stat));
+		PlayerStat stat = plugin.bd.getOrCreatePlayerStats(player);
+		plugin.players.put(player, new CPlayer(stat));
 	}
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent e) 
 	{
 		Player player = e.getPlayer();
-		Main.plugin.removePlayer(player);
+		plugin.removePlayer(player);
 	}
 	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) 
 	{
-		if (e.getEntity()==Main.plugin.clicking) {
+		if (e.getEntity()==plugin.clicking) {
 			e.getDrops().clear();
 		}
 			
@@ -46,28 +51,28 @@ public class EventsListener implements Listener {
 	public void onPlayerHitMob(EntityDamageByEntityEvent e) 
 	{
 		Entity ent = e.getEntity();
-		if (ent==Main.plugin.clicking) {
+		if (ent==plugin.clicking) {
 			Entity entdamager = e.getDamager();
 			if (entdamager instanceof Player) {
-				AttributeInstance maxhealth = Main.plugin.clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+				AttributeInstance maxhealth = plugin.clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
 				Player p = (Player) entdamager;
-				CPlayer cp = Main.plugin.players.get(p);
+				CPlayer cp = plugin.players.get(p);
 				PlayerStat stat = cp.stat;
 				BossBar bar = cp.bar;
-				int power = stat.power;
 				int clicks = cp.clickpertick;
 				
-				if (!Main.plugin.clicking.isDead()&&clicks<1)
+				if (!plugin.clicking.isDead()&&clicks<1)
 				{
-					Main.plugin.w.spawnParticle(Particle.CRIT_MAGIC, Main.plugin.clicking.getEyeLocation(), 3);
-					Main.plugin.clicking.damage(((double)power)/10);
-					Main.plugin.clicking.setNoDamageTicks(0);
-					if (stat.score<5000000)
-						stat.score = stat.score + power;
-					Main.plugin.mobHP = Main.plugin.clicking.getHealth()/maxhealth.getValue();
+					plugin.randomTeleport();
+					plugin.w.spawnParticle(Particle.CRIT_MAGIC, plugin.clicking.getEyeLocation(), 3);
+					plugin.clicking.damage(1);
+					plugin.clicking.setNoDamageTicks(0);
+					if (stat.score<2000000000)
+						stat.score += 1;
+					plugin.mobHP = plugin.clicking.getHealth()/maxhealth.getValue();
 					bar.setTitle("Счёт: "+stat.score);
 					cp.clickpertick++;
-					bar.setProgress(Main.plugin.mobHP);
+					bar.setProgress(plugin.mobHP);
 				}
 			}
 			e.setCancelled(true);

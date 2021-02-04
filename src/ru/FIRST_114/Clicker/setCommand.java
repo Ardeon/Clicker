@@ -5,7 +5,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.RayTraceResult;
 
 
 public class setCommand implements CommandExecutor {
@@ -15,16 +14,24 @@ public class setCommand implements CommandExecutor {
 		if ((sender instanceof Player)) 
 		{
 			Player p = (Player) sender;
-			RayTraceResult r = p.rayTraceBlocks(6);
-			Block b = r.getHitBlock().getRelative(r.getHitBlockFace().getOppositeFace());
+			Block b = p.getLocation().getBlock();
 			if (b!=null)
 			{
-				Main.plugin.config.set("block.world", b.getWorld().getName());
-				Main.plugin.config.set("block.x", b.getX());
-				Main.plugin.config.set("block.y", b.getY());
-				Main.plugin.config.set("block.z", b.getZ());
-				Main.plugin.clickBlock = b;
-				Main.plugin.saveYamls();
+				int n = 1;
+				if (args.length>0) {
+					try {
+						n = Integer.parseInt(args[0]);
+					}catch (Exception e) {
+						n = 0;
+					}
+				}
+				if (n>0 && n<=4) {
+					Main.plugin.config.set("block.world", b.getWorld().getName());
+					Main.plugin.config.set("block."+n, b.getLocation().add(0.5, 0, 0.5));
+					Main.plugin.currentLocation = b.getLocation().add(0.5, 0, 0.5);
+					Main.plugin.saveYamls();
+				}
+				
 			}
 			
 			return true;

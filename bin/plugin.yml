@@ -15,6 +15,10 @@ commands:
         description: кликер
         usage: /clickerset
         permission: clicker.set
+    clickerreload:
+        description: кликер
+        usage: /clickerreload
+        permission: clicker.reload
 permissions: #права
     clicker.set:
         description: Your description
