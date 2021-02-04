@@ -13,13 +13,15 @@ commands:
         permission: clicker.set
     clicker:
         description: кликер
-        usage: /clickerset
-        permission: clicker.set
+        usage: /clicker
+        permission: clicker.admin
     clickerreload:
         description: кликер
         usage: /clickerreload
         permission: clicker.reload
 permissions: #права
     clicker.set:
+        description: Your description
+    clicker.admin:
         description: Your description
 depend: [Multiverse-Core]
