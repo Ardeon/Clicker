@@ -9,6 +9,8 @@ import java.util.function.Predicate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -18,6 +20,8 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.milkbowl.vault.economy.Economy;
@@ -67,13 +71,10 @@ public class Main extends JavaPlugin {
 					Player p = (Player) ent;
 					CPlayer cp = players.get(p);
 					BossBar bar = cp.bar;
-					cp.coinsbar.setVisible(true);
-					cp.coinsbar.addPlayer(p);
 					double pr = cp.stat.power*cp.stat.power*10;
 					double progress = (double)cp.stat.coins/pr;
 	    			if(progress>=1) 
 	    				progress = 1;
-					cp.coinsbar.setProgress(progress);
 					bar.setTitle("Счёт: "+cp.stat.score);
 					bar.setVisible(true);
 					bar.addPlayer(p);
@@ -157,7 +158,6 @@ public class Main extends JavaPlugin {
     public void eraseVisible() {
     	players.forEach((id, cplayer) -> { 
 			cplayer.bar.setVisible(false);
-			cplayer.coinsbar.setVisible(false);
 		}
 		);
     }
@@ -165,18 +165,29 @@ public class Main extends JavaPlugin {
     public void NewMob() {
     	EntityType type = plains.getRandom();
     	clicking = (Mob) w.spawnEntity(loc, type);
+    	clicking.setAI(false);
+    	clicking.setCanPickupItems(false);
+		PotionEffect ef = new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, false, false, false);
+    	ef.apply(clicking);
+    	AttributeInstance maxhealth = clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+    	maxhealth.setBaseValue(1000);
+    	clicking.setHealth(1000);
     	mobHP = 1;
     	plugin.getLogger().info("Create mob");
     } 
     
     public void saveAll() {
-    	players.forEach((id, cplayer) -> save(id, cplayer));
+    	players.forEach((id, cplayer) -> save(id));
     }
     
-    public void save(Player player, CPlayer cplayer) {
-    	bd.saveStats(player.getUniqueId().toString().toLowerCase(), cplayer.stat);
+    public void save(Player player) {
+    	bd.saveStats(player.getUniqueId().toString().toLowerCase(), players.get(player).stat);
     }
     
+    public void removePlayer(Player player) {
+    	save(player);
+    	players.remove(player);
+    }
 
 	public void updateTop() {
 		topchik = bd.getTopPlayerStats();
