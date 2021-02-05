@@ -17,6 +17,11 @@ public class ClickerCommand implements CommandExecutor {
 				Main.plugin.updateTop();
 				return true;
 			}
+			case "reset":
+			{
+				Main.plugin.ResetTop();
+				return true;
+			}
 			default:
 				return false;
 			}

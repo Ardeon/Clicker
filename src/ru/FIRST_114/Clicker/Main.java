@@ -26,6 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.milkbowl.vault.economy.Economy;
 import ru.FIRST_114.Clicker.PlayerData.CPlayer;
 import ru.FIRST_114.Clicker.PlayerData.Kostili;
+import ru.FIRST_114.Clicker.PlayerData.PlayerStat;
 import ru.FIRST_114.Clicker.bd.SQLite;
 
 public class Main extends JavaPlugin {
@@ -36,6 +37,7 @@ public class Main extends JavaPlugin {
     public Location currentLocation;
     public Location[] locations = new Location[4];
     public ArrayList<Kostili> topchik = null;
+    public ArrayList<Kostili> previousTopchik = null;
     public Mob clicking;
     EntityType type;
     public MobList plains = new MobList();
@@ -222,8 +224,19 @@ public class Main extends JavaPlugin {
 
 	public void updateTop() {
 		saveAll();
-		topchik = bd.getTopPlayerStats();
+		topchik = bd.getTopPlayerStats(false);
+		previousTopchik = bd.getTopPlayerStats(true);
     }
-    
+	
+	public void ResetTop() {
+		saveAll();
+		players.clear();
+		bd.resetProgress();
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			PlayerStat stat = plugin.bd.getOrCreatePlayerStats(player);
+			players.put(player, new CPlayer(stat));
+		}
+		updateTop();
+    }
     
 }

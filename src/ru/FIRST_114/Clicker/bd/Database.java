@@ -28,6 +28,18 @@ public abstract class Database {
 			"`power` int NOT NULL DEFAULT 0," +
 			"PRIMARY KEY (`player`)" +
 			");";
+    public String CreateTable2 = "CREATE TABLE IF NOT EXISTS statsprevious (" +
+			"`player` varchar(36) NOT NULL," +
+			"`score` int NOT NULL DEFAULT 0," +
+			"`coins` int NOT NULL DEFAULT 0," +
+			"`autoclickers` int NOT NULL DEFAULT 0," +
+			"`power` int NOT NULL DEFAULT 0," +
+			"PRIMARY KEY (`player`)" +
+			");";
+	private String statsPrevious = "SELECT * into statsprevious FROM stats";
+	private String erasePrevious = "DELETE FROM statsprevious;";
+	//private String dropPrevious = "DROP TABLE statsprevious;";
+	private String erase = "DELETE FROM stats;";
     public Database(Main instance){
         plugin = instance;
     }
@@ -41,6 +53,7 @@ public abstract class Database {
         try {
 			Statement s = connection.createStatement();
 			s.executeUpdate(CreateTable);
+			s.executeUpdate(CreateTable2);
 			s.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -104,12 +117,39 @@ public abstract class Database {
         return null;      
     }
     
-    public ArrayList<Kostili> getTopPlayerStats() {
+    public void resetProgress() {
+        Connection conn = null;
+        Statement ps =null;
+        try {
+            conn = getSQLConnection();
+            ps = conn.createStatement();
+            ps.executeUpdate(erasePrevious);
+            ps.executeUpdate(statsPrevious);
+            ps.executeUpdate(erase);
+
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, "Couldn't execute SQL statement:", ex);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (conn != null)
+                    conn.close();
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, "Failed to close SQL connection: ", ex);
+            }
+        }     
+    }
+    
+    public ArrayList<Kostili> getTopPlayerStats(boolean previous) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM stats ORDER BY score DESC LIMIT 20;");
+            if(!previous)
+            	ps = conn.prepareStatement("SELECT * FROM stats ORDER BY score DESC LIMIT 20;");
+            else
+            	ps = conn.prepareStatement("SELECT * FROM statsprevious ORDER BY score DESC LIMIT 20;");
             ResultSet rs = ps.executeQuery();
             ArrayList<Kostili> top = new ArrayList<Kostili>();
             
