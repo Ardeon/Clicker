@@ -13,13 +13,13 @@ public class CPlayer {
 	
 	public CPlayer(){
 		stat = new PlayerStat();
-		bar = Bukkit.createBossBar("hp", BarColor.GREEN, BarStyle.SOLID);
+		bar = Bukkit.createBossBar("hp", BarColor.GREEN, BarStyle.SEGMENTED_10);
 		clickpertick=0;
 	}
 	
 	public CPlayer(PlayerStat st){
 		stat = st;
-		bar = Bukkit.createBossBar("hp", BarColor.GREEN, BarStyle.SOLID);
+		bar = Bukkit.createBossBar("hp", BarColor.GREEN, BarStyle.SEGMENTED_10);
 		clickpertick=0;
 	}
 }

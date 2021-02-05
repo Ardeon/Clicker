@@ -185,17 +185,21 @@ public class Main extends JavaPlugin {
     		w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
     		break;
     	case CREEPER:
+    		maxhealth.setBaseValue(5);
+        	clicking.setHealth(5);
     		new BukkitRunnable() {
     			int i = 5;
     			@Override
     			public void run() {
-    				if(i<0) {
+    				if(i<1) {
     					clicking.remove();
+    					
     					this.cancel();
     				}
+    				else
+    					w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendTitle("Не БИТЬ", ""+i, 0, 20, 0));
     				if(!clicking.getType().equals(EntityType.CREEPER))
     					this.cancel();
-    				w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendTitle("Не БИТЬ", ""+i, 0, 20, 0));
     				i--;
     			}
     		}.runTaskTimer(plugin, 0, 20);
