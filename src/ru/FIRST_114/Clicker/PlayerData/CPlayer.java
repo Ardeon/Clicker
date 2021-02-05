@@ -6,7 +6,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 
 public class CPlayer {
-	public BossBar bar = Bukkit.createBossBar("hp", BarColor.GREEN, BarStyle.SOLID);
+	public BossBar bar = Bukkit.createBossBar("hp", BarColor.GREEN, BarStyle.SEGMENTED_10);
 	public PlayerStat stat;
 	public int clickpertick=0;
 	

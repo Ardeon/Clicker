@@ -110,7 +110,7 @@ public class Main extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new EventsListener(this), this);
     	savetimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
     	bossBarTimer.runTaskTimer(this, 20L, 40L);
-    	anticheat.runTaskTimer(this, 20L, 2L);
+    	anticheat.runTaskTimer(this, 20L, 4L);
     	topUpdate.runTaskTimer(this, 60L, 7200L);
     }
     
@@ -184,10 +184,22 @@ public class Main extends JavaPlugin {
     		clicking.setCustomName("Свиния Пучкова");
     		w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
     		break;
-    	case BEE:
-    	case VEX:
-    	case PARROT:
-    		clicking.teleport(currentLocation.clone().add(0, 1, 0));
+    	case CREEPER:
+    		new BukkitRunnable() {
+    			int i = 5;
+    			@Override
+    			public void run() {
+    				if(i<0) {
+    					clicking.remove();
+    					this.cancel();
+    				}
+    				if(!clicking.getType().equals(EntityType.CREEPER))
+    					this.cancel();
+    				w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendTitle("Не БИТЬ", ""+i, 0, 20, 0));
+    				i--;
+    			}
+    		}.runTaskTimer(plugin, 0, 20);
+    		break;
 		default:
 			break;
     	}
@@ -198,14 +210,6 @@ public class Main extends JavaPlugin {
     	int random = (int) (Math.random()*4);
     	if (locations[random]!=null)
     		currentLocation = locations[random];
-	    	switch (type) {
-	    	case BEE:
-	    	case VEX:
-	    	case PARROT:
-	    		clicking.teleport(currentLocation.clone().add(0, 1, 0));
-	    	default:
-				break;
-	    	}
     	clicking.teleport(currentLocation);
     }
     

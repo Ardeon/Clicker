@@ -5,6 +5,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.util.Vector;
 
 import ru.FIRST_114.Clicker.PlayerData.CPlayer;
 import ru.FIRST_114.Clicker.PlayerData.PlayerStat;
@@ -73,6 +75,13 @@ public class EventsListener implements Listener {
 					bar.setTitle("Счёт: "+stat.score);
 					cp.clickpertick++;
 					bar.setProgress(plugin.mobHP);
+				}
+				if (plugin.clicking.isDead() && plugin.clicking.getType().equals(EntityType.CREEPER)) {
+					plugin.w
+					.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testplayer).forEach(
+			    			entity -> ((Player)entity)
+			    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
+					p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,2,0)));
 				}
 			}
 			e.setCancelled(true);

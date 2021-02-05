@@ -36,7 +36,7 @@ public abstract class Database {
 			"`power` int NOT NULL DEFAULT 0," +
 			"PRIMARY KEY (`player`)" +
 			");";
-	private String statsPrevious = "SELECT * into statsprevious FROM stats";
+	private String statsPrevious = "INSERT into statsprevious SELECT * FROM stats";
 	private String erasePrevious = "DELETE FROM statsprevious;";
 	//private String dropPrevious = "DROP TABLE statsprevious;";
 	private String erase = "DELETE FROM stats;";

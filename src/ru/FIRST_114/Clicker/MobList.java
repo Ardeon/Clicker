@@ -11,12 +11,9 @@ public class MobList {
 		types.clear();
     	types.add(EntityType.ZOMBIE);
     	types.add(EntityType.SKELETON);
-    	types.add(EntityType.WITHER_SKELETON);
     	types.add(EntityType.HUSK);
     	types.add(EntityType.STRAY);
     	types.add(EntityType.ZOMBIE_VILLAGER);
-    	types.add(EntityType.VEX);
-    	types.add(EntityType.WITCH);
     	types.add(EntityType.EVOKER);
     	types.add(EntityType.VINDICATOR);
     	types.add(EntityType.PILLAGER);
@@ -27,14 +24,11 @@ public class MobList {
     	types.add(EntityType.PIGLIN);
     	types.add(EntityType.GUARDIAN);
     	types.add(EntityType.ZOMBIFIED_PIGLIN);
-    	types.add(EntityType.BEE);
     	types.add(EntityType.IRON_GOLEM);
     	types.add(EntityType.POLAR_BEAR);
     	types.add(EntityType.WOLF);
     	types.add(EntityType.PANDA);
-    	types.add(EntityType.PARROT);
     	types.add(EntityType.SPIDER);
-    	types.add(EntityType.CAVE_SPIDER);
     	types.add(EntityType.STRIDER);
     	types.add(EntityType.OCELOT);
     	types.add(EntityType.CAT);
@@ -47,7 +41,7 @@ public class MobList {
     	types.add(EntityType.MULE);
     	types.add(EntityType.DONKEY);
     	types.add(EntityType.CHICKEN);
-    	types.add(EntityType.RABBIT);
+    	types.add(EntityType.CREEPER);
 	}
 	
 	@SuppressWarnings("unlikely-arg-type")
