@@ -25,7 +25,7 @@ public class TimeToReward {
 		long hours = ChronoUnit.HOURS.between(ZonedDateTime.now(here), nextMonday)%24;
 		long minuts = ChronoUnit.MINUTES.between(ZonedDateTime.now(here), nextMonday)%60;
 		
-		String string = "&e"+days+"&aд &e"+hours+"&aч &e"+minuts+"&aм";//"Dд HHч MMм""yyyy.MM.dd G 'at' HH:mm:ss z"
+		String string = "&e"+days+"&fд &e"+hours+"&fч &e"+minuts+"&fм";//"Dд HHч MMм""yyyy.MM.dd G 'at' HH:mm:ss z"
 		return string;
 	}
 }

@@ -186,8 +186,8 @@ public class Main extends JavaPlugin {
     		w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
     		break;
     	case CREEPER:
-    		maxhealth.setBaseValue(5);
-        	clicking.setHealth(5);
+    		maxhealth.setBaseValue(3);
+        	clicking.setHealth(3);
     		new BukkitRunnable() {
     			int i = 5;
     			@Override

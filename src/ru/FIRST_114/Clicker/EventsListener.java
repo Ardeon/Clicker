@@ -82,6 +82,7 @@ public class EventsListener implements Listener {
 			    			entity -> ((Player)entity)
 			    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
 					p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,2,0)));
+					plugin.currentLocation.createExplosion(0, false, false);
 				}
 			}
 			e.setCancelled(true);
