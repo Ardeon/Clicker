@@ -44,6 +44,7 @@ public class Main extends JavaPlugin {
     public double mobHP=1;
     public Economy eco;
     public World w;
+    public TimeToReward timeToReward = new TimeToReward();
     Predicate<Entity> testplayer = p -> (p instanceof Player);  
     Predicate<Entity> testmob = p -> (p instanceof Mob);
     SQLite bd;
