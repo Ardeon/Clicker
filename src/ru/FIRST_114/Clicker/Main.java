@@ -112,7 +112,7 @@ public class Main extends JavaPlugin {
     	savetimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
     	bossBarTimer.runTaskTimer(this, 20L, 40L);
     	anticheat.runTaskTimer(this, 20L, 4L);
-    	topUpdate.runTaskTimer(this, 60L, 7200L);
+    	topUpdate.runTaskTimer(this, 60L, 1200L);
     }
     
     public void load() {
