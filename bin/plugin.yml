@@ -11,6 +11,10 @@ commands:
         description: Удаление счёта
         usage: /clicks <число>
         permission: clicker.set
+    clickboost:
+        description: усиление клика
+        usage: /clickboost
+        permission: clicker.boost
     clicker:
         description: кликер
         usage: /clicker

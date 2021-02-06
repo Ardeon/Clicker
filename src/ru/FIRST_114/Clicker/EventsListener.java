@@ -65,12 +65,12 @@ public class EventsListener implements Listener {
 				
 				if (!plugin.clicking.isDead()&&clicks<1)
 				{
-					plugin.randomTeleport();
+					
 					plugin.w.spawnParticle(Particle.CRIT_MAGIC, plugin.clicking.getEyeLocation(), 3);
 					plugin.clicking.damage(1);
 					plugin.clicking.setNoDamageTicks(0);
 					if (stat.score<2000000000)
-						stat.score += 1;
+						stat.score += (int) Math.pow(2, stat.autoclickers);
 					plugin.mobHP = plugin.clicking.getHealth()/maxhealth.getValue();
 					bar.setTitle("Счёт: "+stat.score);
 					cp.clickpertick++;
@@ -81,7 +81,7 @@ public class EventsListener implements Listener {
 					.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testplayer).forEach(
 			    			entity -> ((Player)entity)
 			    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
-					p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,2,0)));
+					p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,1.7,0)));
 					plugin.currentLocation.createExplosion(0, false, false);
 				}
 			}

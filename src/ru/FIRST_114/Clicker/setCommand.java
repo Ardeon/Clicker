@@ -25,7 +25,7 @@ public class setCommand implements CommandExecutor {
 						n = 0;
 					}
 				}
-				if (n>0 && n<=4) {
+				if (n>0 && n<=7) {
 					Main.plugin.config.set("block.world", b.getWorld().getName());
 					Main.plugin.config.set("block."+n, b.getLocation().add(0.5, 0, 0.5));
 					Main.plugin.currentLocation = b.getLocation().add(0.5, 0, 0.5);

@@ -35,7 +35,8 @@ public class Main extends JavaPlugin {
     public File configFile;           
     public YamlConfiguration config;
     public Location currentLocation;
-    public Location[] locations = new Location[4];
+    public Location[] locations = new Location[7];
+    private int position = 0;
     public ArrayList<Kostili> topchik = null;
     public ArrayList<Kostili> previousTopchik = null;
     public Mob clicking;
@@ -67,6 +68,7 @@ public class Main extends JavaPlugin {
 			if (currentLocation!=null) {
 				World w = currentLocation.getWorld();
 				if (w.getChunkAt(currentLocation).isLoaded()&&(clicking==null||clicking.isDead())) {
+					randomTeleport();
 					NewMob();
 				}
 				eraseVisible();
@@ -105,6 +107,7 @@ public class Main extends JavaPlugin {
     	plugin = this;
         load();
         getServer().getPluginCommand("clickerset").setExecutor(new setCommand());
+        getServer().getPluginCommand("clickboost").setExecutor(new ClickBoostCommand());
         getServer().getPluginCommand("clicks").setExecutor(new ClicksCommand());
         getServer().getPluginCommand("clicker").setExecutor(new ClickerCommand());
         getServer().getPluginCommand("clickerreload").setExecutor(new ClickerReloadCommand());
@@ -134,7 +137,7 @@ public class Main extends JavaPlugin {
         if (worldName!=null) {
         	w = Bukkit.getWorld(worldName);
         	if (w!=null) {
-	        	for (int i = 1; i <= 4; i++) {
+	        	for (int i = 1; i <= 7; i++) {
 	        		locations[i-1] = config.getLocation("block."+i, null);
 	        	}
 	        	if (locations[0]!=null)
@@ -174,9 +177,8 @@ public class Main extends JavaPlugin {
 		PotionEffect ef = new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, false, false, false);
     	ef.apply(clicking);
     	AttributeInstance maxhealth = clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-    	int random = (int) (5 + Math.random()*6);
-    	maxhealth.setBaseValue(random);
-    	clicking.setHealth(random);
+    	maxhealth.setBaseValue(10);
+    	clicking.setHealth(10);
     	mobHP = 1;
     	w.getNearbyEntities(currentLocation, 10, 10, 10, testplayer).forEach(
     			e -> ((Player)e).setVelocity(e.getLocation().toVector().subtract(currentLocation.toVector()).normalize().multiply(0.5)));
@@ -198,7 +200,7 @@ public class Main extends JavaPlugin {
     					this.cancel();
     				}
     				else
-    					w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendTitle("Не БИТЬ", ""+i, 0, 20, 0));
+    					w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendTitle("§6Не БИТЬ", ""+i, 0, 20, 0));
     				if(!clicking.getType().equals(EntityType.CREEPER))
     					this.cancel();
     				i--;
@@ -212,10 +214,20 @@ public class Main extends JavaPlugin {
     }
     
     public void randomTeleport() {
-    	int random = (int) (Math.random()*4);
-    	if (locations[random]!=null)
-    		currentLocation = locations[random];
-    	clicking.teleport(currentLocation);
+    	if (Math.random()>0.5) {
+    		position++;
+    		if (position>=7)
+    			position=0;
+    	}
+    	else {
+    		position--;
+    		if (position<0)
+    			position=6;
+    	}
+    	
+    	if (locations[position]!=null)
+    		currentLocation = locations[position];
+    	//clicking.teleport(currentLocation);
     }
     
     public void saveAll() {
@@ -239,6 +251,7 @@ public class Main extends JavaPlugin {
 	
 	public void ResetTop() {
 		saveAll();
+		eraseVisible();
 		players.clear();
 		bd.resetProgress();
 		for (Player player : Bukkit.getOnlinePlayers()) {

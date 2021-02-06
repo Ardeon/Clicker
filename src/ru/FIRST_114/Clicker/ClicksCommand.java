@@ -19,7 +19,7 @@ public class ClicksCommand implements CommandExecutor {
 			{
 				int removed;
 				try {
-					removed=Integer.parseInt(args[1]);
+					removed=Integer.parseInt(args[0]);
 				}
 				catch (NumberFormatException e)
 				{
