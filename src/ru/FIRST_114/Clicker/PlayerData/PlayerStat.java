@@ -13,4 +13,7 @@ public class PlayerStat {
 		power = 1;
 	}
 	
+	public long getBoostprice(){
+		return 1000 * ((int) Math.pow(3, autoclickers));
+	}
 }

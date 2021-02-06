@@ -1,5 +1,6 @@
 package ru.FIRST_114.Clicker;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,24 +15,28 @@ public class ClickBoostCommand implements CommandExecutor {
 		if ((sender instanceof Player)) 
 		{
 			Player p = (Player) sender;
-			PlayerStat stat = Main.plugin.players.get(p).stat;
-			
-			int boost = stat.autoclickers;
-			long price = 1000 * ((int) Math.pow(3, boost));
-			if (args.length!=0) {
-				p.sendMessage("§eВам надо иметь " + price + "кликов");
-				return true;
+			return execute(p);
+		}
+		if (args.length==1) {
+			Player p = Bukkit.getPlayer(args[0]);
+			if (p!=null) {
+				return execute(p);
 			}
-			if (stat.score>=price) {
-				stat.score -= price;
-				stat.autoclickers++;
-				p.sendMessage("§aВы удвоили множитель своих кликов");
-			}
-			else
-				p.sendMessage("§eВам надо иметь " + price + "кликов");
-			return true;
 		}
 		return false;
 	}
 
+	boolean execute(Player p) {
+		PlayerStat stat = Main.plugin.players.get(p).stat;
+		long price = stat.getBoostprice();
+		if (stat.score>=price) {
+			stat.score -= price;
+			stat.autoclickers++;
+			p.sendMessage("§aВы удвоили множитель своих кликов");
+		}
+		else
+			p.sendMessage("§eВам надо иметь " + price + "кликов");
+		return true;
+	}
+	
 }
