@@ -53,6 +53,7 @@ public class Main extends JavaPlugin {
 		@Override
 		public void run() {
 			saveAll();
+			timeToReward = new TimeToReward();
 			getLogger().info("clicker autosave");
 		}
 	};
@@ -113,12 +114,13 @@ public class Main extends JavaPlugin {
         getServer().getPluginCommand("clickerreload").setExecutor(new ClickerReloadCommand());
     	getServer().getPluginManager().registerEvents(new EventsListener(this), this);
     	savetimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
-    	bossBarTimer.runTaskTimer(this, 20L, 40L);
+    	bossBarTimer.runTaskTimer(this, 20L, 3L);
     	anticheat.runTaskTimer(this, 20L, 4L);
     	topUpdate.runTaskTimer(this, 60L, 1200L);
     }
     
     public void load() {
+    	timeToReward = new TimeToReward();
     	configFile = new File(getDataFolder(), "config.yml"); 
         configFile.getParentFile().mkdirs();
         if (!configFile.exists()) {
@@ -177,8 +179,11 @@ public class Main extends JavaPlugin {
 		PotionEffect ef = new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, false, false, false);
     	ef.apply(clicking);
     	AttributeInstance maxhealth = clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-    	maxhealth.setBaseValue(10);
-    	clicking.setHealth(10);
+    	int hp = 10;
+    	int players = w.getNearbyEntities(currentLocation, 10, 10, 10, testplayer).size();
+    	hp+=10* players;
+    	maxhealth.setBaseValue(hp);
+    	clicking.setHealth(hp);
     	mobHP = 1;
     	w.getNearbyEntities(currentLocation, 10, 10, 10, testplayer).forEach(
     			e -> ((Player)e).setVelocity(e.getLocation().toVector().subtract(currentLocation.toVector()).normalize().multiply(0.5)));

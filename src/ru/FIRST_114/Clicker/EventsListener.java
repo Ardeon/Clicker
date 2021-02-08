@@ -76,13 +76,19 @@ public class EventsListener implements Listener {
 					cp.clickpertick++;
 					bar.setProgress(plugin.mobHP);
 				}
-				if (plugin.clicking.isDead() && plugin.clicking.getType().equals(EntityType.CREEPER)) {
-					plugin.w
-					.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testplayer).forEach(
-			    			entity -> ((Player)entity)
-			    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
-					p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,1.7,0)));
-					plugin.currentLocation.createExplosion(0, false, false);
+				if (plugin.clicking.isDead() ) {
+					
+					if (plugin.clicking.getType().equals(EntityType.CREEPER)) {
+						
+						plugin.w
+						.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testplayer).forEach(
+				    			entity -> ((Player)entity)
+				    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
+						p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,1.7,0)));
+						plugin.currentLocation.createExplosion(0, false, false);
+					}
+					plugin.randomTeleport();
+					plugin.NewMob();
 				}
 			}
 			e.setCancelled(true);
