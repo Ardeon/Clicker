@@ -11,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
@@ -41,10 +43,31 @@ public class EventsListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onEntitySplit(SlimeSplitEvent e) 
+	{
+		Entity entity = e.getEntity();
+		if (entity==plugin.clicking) {
+			e.setCancelled(true);
+		}
+			
+	}
+	
+	@EventHandler
+	public void onEntityTeleport(EntityTeleportEvent e) 
+	{
+		Entity entity = e.getEntity();
+		if (entity==plugin.clicking) {
+			e.setCancelled(true);
+		}
+			
+	}
+	
+	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) 
 	{
-		if (e.getEntity()==plugin.clicking) {
-			e.getDrops().clear();
+		Entity entity = e.getEntity();
+		if (entity==plugin.clicking) {
+			e.getDrops().clear();//EntityType.
 		}
 			
 	}
@@ -79,16 +102,17 @@ public class EventsListener implements Listener {
 				if (plugin.clicking.isDead() ) {
 					
 					if (plugin.clicking.getType().equals(EntityType.CREEPER)) {
-						
+						plugin.currentLocation.createExplosion(0, false, false);
 						plugin.w
 						.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testplayer).forEach(
 				    			entity -> ((Player)entity)
 				    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
 						p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,1.7,0)));
-						plugin.currentLocation.createExplosion(0, false, false);
+						
+					} else {
+						plugin.randomTeleport();
+						plugin.NewMob();
 					}
-					plugin.randomTeleport();
-					plugin.NewMob();
 				}
 			}
 			e.setCancelled(true);
