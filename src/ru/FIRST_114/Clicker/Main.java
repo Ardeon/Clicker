@@ -114,7 +114,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginCommand("clickerreload").setExecutor(new ClickerReloadCommand());
     	getServer().getPluginManager().registerEvents(new EventsListener(this), this);
     	savetimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
-    	bossBarTimer.runTaskTimer(this, 20L, 3L);
+    	bossBarTimer.runTaskTimer(this, 20L, 10L);
     	anticheat.runTaskTimer(this, 20L, 4L);
     	topUpdate.runTaskTimer(this, 60L, 1200L);
     }

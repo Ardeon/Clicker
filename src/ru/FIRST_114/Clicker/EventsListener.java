@@ -7,6 +7,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -46,7 +47,8 @@ public class EventsListener implements Listener {
 	public void onEntitySplit(SlimeSplitEvent e) 
 	{
 		Entity entity = e.getEntity();
-		if (entity==plugin.clicking) {
+		Slime slime = (Slime)entity;
+		if (!slime.hasAI()) {
 			e.setCancelled(true);
 		}
 			
