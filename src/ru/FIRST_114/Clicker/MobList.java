@@ -42,6 +42,9 @@ public class MobList {
     	types.add(EntityType.DONKEY);
     	types.add(EntityType.CHICKEN);
     	types.add(EntityType.CREEPER);
+    	types.add(EntityType.ENDERMAN);
+    	types.add(EntityType.MAGMA_CUBE);
+    	types.add(EntityType.SLIME);
 	}
 	
 	@SuppressWarnings("unlikely-arg-type")
