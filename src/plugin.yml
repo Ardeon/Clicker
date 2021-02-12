@@ -28,4 +28,4 @@ permissions: #права
         description: Your description
     clicker.admin:
         description: Your description
-depend: [Multiverse-Core]
+depend: [Multiverse-Core, PlaceholderAPI]
