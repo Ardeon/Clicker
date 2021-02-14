@@ -189,7 +189,7 @@ public class Main extends JavaPlugin {
     			e -> ((Player)e).setVelocity(e.getLocation().toVector().subtract(currentLocation.toVector()).normalize().multiply(0.5)));
     	switch (type) {
     	case PIG:
-    		clicking.setCustomName("Свиния Пучкова");
+    		clicking.setCustomName("Свинья Пучкова");
     		w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
     		break;
     	case CREEPER:

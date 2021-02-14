@@ -28,7 +28,6 @@ public class MobList {
     	types.add(EntityType.POLAR_BEAR);
     	types.add(EntityType.WOLF);
     	types.add(EntityType.PANDA);
-    	types.add(EntityType.SPIDER);
     	types.add(EntityType.STRIDER);
     	types.add(EntityType.OCELOT);
     	types.add(EntityType.CAT);
