@@ -97,6 +97,9 @@ public class Main extends JavaPlugin {
 		saveAll();
 		if (clicking!=null)
 			clicking.remove();
+		savetimer.cancel();
+		anticheat.cancel();
+		bossBarTimer.cancel();
     }
 
     @Override
@@ -117,6 +120,11 @@ public class Main extends JavaPlugin {
     	bossBarTimer.runTaskTimer(this, 20L, 10L);
     	anticheat.runTaskTimer(this, 20L, 4L);
     	topUpdate.runTaskTimer(this, 60L, 1200L);
+    	
+    	for (Player player : Bukkit.getOnlinePlayers()) {
+    		PlayerStat stat = plugin.bd.getOrCreatePlayerStats(player);
+    		players.put(player, new CPlayer(stat));
+    	}
     }
     
     public void load() {
