@@ -34,12 +34,9 @@ public class MobList {
     	types.add(EntityType.TURTLE);
     	types.add(EntityType.PIG);
     	types.add(EntityType.FOX);
-    	types.add(EntityType.COW);
-    	types.add(EntityType.MUSHROOM_COW);
     	types.add(EntityType.HORSE);
     	types.add(EntityType.MULE);
     	types.add(EntityType.DONKEY);
-    	types.add(EntityType.CHICKEN);
     	types.add(EntityType.CREEPER);
     	types.add(EntityType.ENDERMAN);
     	types.add(EntityType.MAGMA_CUBE);

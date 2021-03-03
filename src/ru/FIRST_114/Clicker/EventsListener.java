@@ -17,6 +17,7 @@ import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
+import org.spigotmc.event.entity.EntityMountEvent;
 
 import ru.FIRST_114.Clicker.PlayerData.CPlayer;
 import ru.FIRST_114.Clicker.PlayerData.PlayerStat;
@@ -58,6 +59,26 @@ public class EventsListener implements Listener {
 	public void onEntityTeleport(EntityTeleportEvent e) 
 	{
 		Entity entity = e.getEntity();
+		if (entity==plugin.clicking) {
+			e.setCancelled(true);
+		}
+			
+	}
+	
+	@EventHandler
+	public void onEntityDamageOther(EntityDamageByEntityEvent e) 
+	{
+		Entity entity = e.getDamager();
+		if (entity==plugin.clicking) {
+			e.setCancelled(true);
+		}
+			
+	}
+	
+	@EventHandler
+	public void onMountEntity(EntityMountEvent e) 
+	{
+		Entity entity = e.getMount();
 		if (entity==plugin.clicking) {
 			e.setCancelled(true);
 		}
