@@ -1,0 +1,30 @@
+name: Clicker
+main: ru.ardeon.Clicker.Main
+version: 1.0
+commands:
+    clickerset:
+        description: установка кликера
+        usage: /clickerset
+        permission: clicker.set
+    clicks:
+        description: Удаление счёта
+        usage: /clicks <число>
+        permission: clicker.set
+    clickboost:
+        description: усиление клика
+        usage: /clickboost
+        permission: clicker.boost
+    clicker:
+        description: кликер
+        usage: /clicker
+        permission: clicker.admin
+    clickerreload:
+        description: кликер
+        usage: /clickerreload
+        permission: clicker.reload
+permissions: #права
+    clicker.set:
+        description: Your description
+    clicker.admin:
+        description: Your description
+depend: [Multiverse-Core, PlaceholderAPI]
