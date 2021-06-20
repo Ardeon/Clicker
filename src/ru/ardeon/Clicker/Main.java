@@ -37,8 +37,8 @@ public class Main extends JavaPlugin {
     public Location currentLocation;
     public Location[] locations = new Location[7];
     private int position = 0;
-    public ArrayList<Kostili> topchik = null;
-    public ArrayList<Kostili> previousTopchik = null;
+    public ArrayList<Kostili> playersTop = null;
+    public ArrayList<Kostili> previousTop = null;
     public Mob clicking;
     EntityType type;
     public MobList plains = new MobList();
@@ -46,45 +46,12 @@ public class Main extends JavaPlugin {
     public Economy eco;
     public World w;
     public TimeToReward timeToReward = new TimeToReward();
-    Predicate<Entity> testplayer = p -> (p instanceof Player);  
-    Predicate<Entity> testmob = p -> (p instanceof Mob);
+    Predicate<Entity> testPlayer = p -> (p instanceof Player);
+    Predicate<Entity> testMob = p -> (p instanceof Mob);
     SQLite bd;
-	BukkitRunnable savetimer = new BukkitRunnable() {
-		@Override
-		public void run() {
-			saveAll();
-			timeToReward = new TimeToReward();
-			getLogger().info("clicker autosave");
-		}
-	};
-	BukkitRunnable anticheat = new BukkitRunnable() {
-		@Override
-		public void run() {
-			players.forEach((id, cplayer) -> cplayer.clickpertick=0);
-		}
-	};
-	BukkitRunnable bossBarTimer = new BukkitRunnable() {
-		@Override
-		public void run() {
-			if (currentLocation!=null) {
-				World w = currentLocation.getWorld();
-				if (w.getChunkAt(currentLocation).isLoaded()&&(clicking==null||clicking.isDead())) {
-					randomTeleport();
-					NewMob();
-				}
-				eraseVisible();
-				for (Entity ent : currentLocation.getWorld().getNearbyEntities(currentLocation, 10, 10, 10, testplayer)) {
-					Player p = (Player) ent;
-					CPlayer cp = players.get(p);
-					BossBar bar = cp.bar;
-					bar.setTitle("Счёт: "+cp.stat.score);
-					bar.setVisible(true);
-					bar.addPlayer(p);
-					bar.setProgress(mobHP);
-				}
-			}
-		}
-	};
+	BukkitRunnable saveTimer;
+	BukkitRunnable antiCheat;
+	BukkitRunnable clickerTimer;
 	BukkitRunnable topUpdate = new BukkitRunnable() {
 		@Override
 		public void run() {
@@ -97,9 +64,9 @@ public class Main extends JavaPlugin {
 		saveAll();
 		if (clicking!=null)
 			clicking.remove();
-		savetimer.cancel();
-		anticheat.cancel();
-		bossBarTimer.cancel();
+		saveTimer.cancel();
+		antiCheat.cancel();
+		clickerTimer.cancel();
     }
 
     @Override
@@ -116,16 +83,94 @@ public class Main extends JavaPlugin {
         getServer().getPluginCommand("clicker").setExecutor(new ClickerCommand());
         getServer().getPluginCommand("clickerreload").setExecutor(new ClickerReloadCommand());
     	getServer().getPluginManager().registerEvents(new EventsListener(this), this);
-    	savetimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
-    	bossBarTimer.runTaskTimer(this, 20L, 10L);
-    	anticheat.runTaskTimer(this, 20L, 4L);
-    	topUpdate.runTaskTimer(this, 60L, 1200L);
     	
     	for (Player player : Bukkit.getOnlinePlayers()) {
     		PlayerStat stat = plugin.bd.getOrCreatePlayerStats(player);
     		players.put(player, new CPlayer(stat));
     	}
     }
+
+	public void startClicker() {
+		if (saveTimer != null) {
+			try{
+				if (!saveTimer.isCancelled()) {
+					saveTimer.cancel();
+				}
+			} catch (IllegalStateException e) {
+			}
+		}
+		if (clickerTimer != null) {
+			try{
+				if (!clickerTimer.isCancelled()) {
+					clickerTimer.cancel();
+				}
+			} catch (IllegalStateException e) {
+			}
+		}
+		if (antiCheat != null) {
+			try{
+				if (!antiCheat.isCancelled()) {
+					antiCheat.cancel();
+				}
+			} catch (IllegalStateException e) {
+			}
+		}
+		if (topUpdate != null) {
+			try{
+				if (!topUpdate.isCancelled()) {
+					topUpdate.cancel();
+				}
+			} catch (IllegalStateException e) {
+			}
+		}
+		saveTimer = new BukkitRunnable() {
+			@Override
+			public void run() {
+				saveAll();
+				timeToReward = new TimeToReward();
+				getLogger().info("clicker autosave");
+			}
+		};
+		antiCheat = new BukkitRunnable() {
+			@Override
+			public void run() {
+				players.forEach((id, cplayer) -> cplayer.clickpertick=0);
+			}
+		};
+		clickerTimer = new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (currentLocation!=null) {
+					World w = currentLocation.getWorld();
+					if (w.getChunkAt(currentLocation).isLoaded()&&(clicking==null||clicking.isDead())) {
+						randomTeleport();
+						NewMob();
+					}
+					eraseVisible();
+					for (Entity ent : currentLocation.getWorld().getNearbyEntities(currentLocation, 10, 10, 10, testPlayer)) {
+						Player p = (Player) ent;
+						CPlayer cp = players.get(p);
+						BossBar bar = cp.bar;
+						bar.setTitle("Счёт: "+cp.stat.score);
+						bar.setVisible(true);
+						bar.addPlayer(p);
+						bar.setProgress(mobHP);
+					}
+				}
+			}
+		};
+		topUpdate = new BukkitRunnable() {
+			@Override
+			public void run() {
+				updateTop();
+			}
+		};
+
+		saveTimer.runTaskTimerAsynchronously(this, 2000L, 30000L);
+		clickerTimer.runTaskTimer(this, 20L, 10L);
+		antiCheat.runTaskTimer(this, 20L, 4L);
+		topUpdate.runTaskTimer(this, 60L, 1200L);
+	}
     
     public void load() {
     	timeToReward = new TimeToReward();
@@ -135,7 +180,6 @@ public class Main extends JavaPlugin {
         	try {
 				configFile.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         }
@@ -188,17 +232,17 @@ public class Main extends JavaPlugin {
     	ef.apply(clicking);
     	AttributeInstance maxhealth = clicking.getAttribute(Attribute.GENERIC_MAX_HEALTH);
     	int hp = 10;
-    	int players = w.getNearbyEntities(currentLocation, 10, 10, 10, testplayer).size();
+    	int players = w.getNearbyEntities(currentLocation, 10, 10, 10, testPlayer).size();
     	hp+=10* players;
     	maxhealth.setBaseValue(hp);
     	clicking.setHealth(hp);
     	mobHP = 1;
-    	w.getNearbyEntities(currentLocation, 10, 10, 10, testplayer).forEach(
+    	w.getNearbyEntities(currentLocation, 10, 10, 10, testPlayer).forEach(
     			e -> ((Player)e).setVelocity(e.getLocation().toVector().subtract(currentLocation.toVector()).normalize().multiply(0.5)));
     	switch (type) {
     	case PIG:
     		clicking.setCustomName("Свинья Пучкова");
-    		w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
+    		w.getNearbyEntities(currentLocation, 20, 20, 20, testPlayer).forEach(e -> ((Player)e).sendMessage("§6§nДементий,§r§9 народ требует свиней!"));
     		break;
     	case CREEPER:
     		maxhealth.setBaseValue(3);
@@ -213,7 +257,7 @@ public class Main extends JavaPlugin {
     					this.cancel();
     				}
     				else
-    					w.getNearbyEntities(currentLocation, 20, 20, 20, testplayer).forEach(e -> ((Player)e).sendTitle("§6Не БИТЬ", ""+i, 0, 20, 0));
+    					w.getNearbyEntities(currentLocation, 20, 20, 20, testPlayer).forEach(e -> ((Player)e).sendTitle("§6Не БИТЬ", ""+i, 0, 20, 0));
     				if(!clicking.getType().equals(EntityType.CREEPER))
     					this.cancel();
     				i--;
@@ -258,8 +302,8 @@ public class Main extends JavaPlugin {
 
 	public void updateTop() {
 		saveAll();
-		topchik = bd.getTopPlayerStats(false);
-		previousTopchik = bd.getTopPlayerStats(true);
+		playersTop = bd.getTopPlayerStats(false);
+		previousTop = bd.getTopPlayerStats(true);
     }
 	
 	public void ResetTop() {

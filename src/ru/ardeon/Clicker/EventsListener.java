@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityMountEvent;
 
@@ -42,6 +43,12 @@ public class EventsListener implements Listener {
 	{
 		Player player = e.getPlayer();
 		plugin.removePlayer(player);
+	}
+
+	@EventHandler
+	public void onServerStart(ServerLoadEvent e)
+	{
+		plugin.startClicker();
 	}
 	
 	@EventHandler
@@ -127,7 +134,7 @@ public class EventsListener implements Listener {
 					if (plugin.clicking.getType().equals(EntityType.CREEPER)) {
 						plugin.currentLocation.getWorld().createExplosion(plugin.currentLocation, 0, false, false);
 						plugin.w
-						.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testplayer).forEach(
+						.getNearbyEntities(plugin.currentLocation, 10, 10, 10, plugin.testPlayer).forEach(
 				    			entity -> ((Player)entity)
 				    			.setVelocity(entity.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(1.2)));
 						p.setVelocity(p.getLocation().toVector().subtract(plugin.currentLocation.toVector()).normalize().multiply(2.5).add(new Vector(0,1.7,0)));

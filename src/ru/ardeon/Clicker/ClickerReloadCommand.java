@@ -8,6 +8,7 @@ public class ClickerReloadCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String arg2, String[] args) {
+		Main.plugin.startClicker();
 		Main.plugin.load();
 		Main.plugin.updateTop();
 		return true;
