@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Clicker" target="16" />
+      <module name="Clicker" target="15" />
     </bytecodeTargetLevel>
   </component>
 </project>
